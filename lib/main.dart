@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kactus_photo_bill/views/camera_view.dart';
+import 'package:kactus_photo_bill/views/login_view.dart';
+import 'package:kactus_photo_bill/views/main_view.dart';
+import 'package:kactus_photo_bill/views/save_bill_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +26,14 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      // home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainView(),
+        'login': (context) => LoginView(),
+        'save': (context) => SaveBillView(),
+        'camera': (context) => CameraView(),
+      },
     );
   }
 }
