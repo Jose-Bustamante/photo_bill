@@ -6,17 +6,28 @@ class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MainView'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate back to first screen when tapped.
-          },
-          child: const Text('Go back! 2'),
+        appBar: AppBar(
+          title: const Text('Main View'),
         ),
-      ),
-    );
+        body: Container(
+          alignment: Alignment.center,
+          color: Color(0xff258DED),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, 'camera'),
+                      child: Text('Save bill')),
+                  ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, 'bills'),
+                      child: Text('Show saved Bills'))
+                ],
+              )
+            ],
+          ),
+        ));
   }
 }

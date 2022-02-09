@@ -3,6 +3,7 @@ import 'package:kactus_photo_bill/views/camera_view.dart';
 import 'package:kactus_photo_bill/views/login_view.dart';
 import 'package:kactus_photo_bill/views/main_view.dart';
 import 'package:kactus_photo_bill/views/save_bill_view.dart';
+import 'package:kactus_photo_bill/views/saved_bills_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,10 +30,11 @@ class MyApp extends StatelessWidget {
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainView(),
-        'login': (context) => LoginView(),
-        'save': (context) => SaveBillView(),
-        'camera': (context) => CameraView(),
+        '/': (context) => const MainView(),
+        'login': (context) => const LoginView(),
+        'save': (context) => const SaveBillView(),
+        'camera': (context) => const CameraView(),
+        'bills': (context) => const SavedBillsView(),
       },
     );
   }
