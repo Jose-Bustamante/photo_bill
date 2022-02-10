@@ -167,64 +167,76 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              InkWell(
-                                onTap: () async {
-                                  setState(() {
-                                    _currentFlashMode = FlashMode.off;
-                                  });
-                                  await controller!.setFlashMode(FlashMode.off);
-                                },
-                                child: Icon(
+                              IconButton(
+                                icon: Icon(
                                   Icons.flash_off,
                                   color: _currentFlashMode == FlashMode.off
                                       ? Colors.amber
                                       : Colors.white,
                                 ),
+                                iconSize: 24,
+                                splashRadius: 24,
+                                onPressed: () async {
+                                  setState(() {
+                                    _currentFlashMode = FlashMode.off;
+                                  });
+                                  await controller!.setFlashMode(FlashMode.off);
+                                },
+                                splashColor: Colors.white,
                               ),
-                              InkWell(
-                                onTap: () async {
+                              IconButton(
+                                icon: Icon(
+                                  Icons.flash_auto,
+                                  color: _currentFlashMode == FlashMode.auto
+                                      ? Colors.amber
+                                      : Colors.white,
+                                ),
+                                iconSize: 24,
+                                splashRadius: 24,
+                                onPressed: () async {
                                   setState(() {
                                     _currentFlashMode = FlashMode.auto;
                                   });
                                   await controller!
                                       .setFlashMode(FlashMode.auto);
                                 },
-                                child: Icon(
-                                  Icons.flash_auto,
-                                  color: _currentFlashMode == FlashMode.auto
+                                splashColor: Colors.white,
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.flash_on,
+                                  color: _currentFlashMode == FlashMode.always
                                       ? Colors.amber
                                       : Colors.white,
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () async {
+                                iconSize: 24,
+                                splashRadius: 24,
+                                onPressed: () async {
                                   setState(() {
                                     _currentFlashMode = FlashMode.always;
                                   });
                                   await controller!
                                       .setFlashMode(FlashMode.always);
                                 },
-                                child: Icon(
-                                  Icons.flash_on,
-                                  color: _currentFlashMode == FlashMode.always
+                                splashColor: Colors.white,
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.highlight,
+                                  color: _currentFlashMode == FlashMode.torch
                                       ? Colors.amber
                                       : Colors.white,
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () async {
+                                iconSize: 24,
+                                splashRadius: 24,
+                                onPressed: () async {
                                   setState(() {
                                     _currentFlashMode = FlashMode.torch;
                                   });
                                   await controller!
                                       .setFlashMode(FlashMode.torch);
                                 },
-                                child: Icon(
-                                  Icons.highlight,
-                                  color: _currentFlashMode == FlashMode.torch
-                                      ? Colors.amber
-                                      : Colors.white,
-                                ),
+                                splashColor: Colors.white,
                               ),
                             ],
                           ),
