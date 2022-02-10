@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:kactus_photo_bill/views/camera_view.dart';
 import 'package:kactus_photo_bill/views/login_view.dart';
@@ -5,7 +6,16 @@ import 'package:kactus_photo_bill/views/main_view.dart';
 import 'package:kactus_photo_bill/views/save_bill_view.dart';
 import 'package:kactus_photo_bill/views/saved_bills_view.dart';
 
-void main() {
+List<CameraDescription> cameras = [];
+
+void main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Error in fetching the cameras: $e');
+  }
+
   runApp(MyApp());
 }
 
@@ -33,7 +43,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MainView(),
         'login': (context) => const LoginView(),
         'save': (context) => const SaveBillView(),
-        'camera': (context) => const CameraView(),
+        'camera': (context) => CameraView(),
         'bills': (context) => const SavedBillsView(),
       },
     );
