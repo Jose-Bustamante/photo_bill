@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import '../main.dart';
+import 'package:kactus_photo_bill/views/photo_preview_view.dart';
 
 class CameraView extends StatefulWidget {
   @override
@@ -10,10 +14,40 @@ class CameraView extends StatefulWidget {
 
 class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   CameraController? controller;
+  FlashMode? _currentFlashMode;
+
   bool _isCameraInitialized = false;
   final resolutionPreset = ResolutionPreset.values;
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
-  FlashMode? _currentFlashMode;
+
+  File? _imageFile;
+  List<File> allFileList = [];
+
+  refreshAlreadyCapturedImages() async {
+    final directory = await getApplicationDocumentsDirectory();
+    List<FileSystemEntity> fileList = await directory.list().toList();
+    allFileList.clear();
+    List<Map<int, dynamic>> fileNames = [];
+
+    fileList.forEach((file) {
+      if (file.path.contains('jpg')) {
+        allFileList.add(File(file.path));
+
+        String name = file.path.split('/').last.split('.').first;
+        fileNames.add({0: int.parse(name), 1: file.path.split('/').last});
+      }
+    });
+
+    if (fileNames.isNotEmpty) {
+      final rencentFile = fileNames
+          .reduce((current, next) => current[0] > next[0] ? current : next);
+
+      String recentFileName = rencentFile[1];
+      _imageFile = File('${directory.path}/$recentFileName');
+
+      setState(() {});
+    }
+  }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     final previousCameraController = controller;
@@ -56,11 +90,27 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     }
   }
 
+  Future<XFile?> takePicture() async {
+    final CameraController? cameraController = controller;
+    if (cameraController!.value.isTakingPicture) {
+      // A photo is being taken so do nothing
+      return null;
+    }
+    try {
+      XFile file = await cameraController.takePicture();
+      return file;
+    } on CameraException catch (e) {
+      print('Error occurred while taking picture: $e');
+      return null;
+    }
+  }
+
   @override
   void initState() {
     if (cameras.isNotEmpty) {
       onNewCameraSelected(cameras.first);
     }
+    refreshAlreadyCapturedImages();
     super.initState();
   }
 
@@ -109,6 +159,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                           padding:
                               const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                           child: Column(
+                            mainAxisSize: MainAxisSize.max,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Align(
@@ -149,7 +200,88 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                                     ),
                                   ),
                                 ),
-                              )
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(
+                                        'Place Holder',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          XFile? rawImage = await takePicture();
+                                          File imageFile = File(rawImage!.path);
+                                          int currentUnix = DateTime.now()
+                                              .millisecondsSinceEpoch;
+                                          final directory =
+                                              await getApplicationDocumentsDirectory();
+                                          String fileFormat =
+                                              imageFile.path.split('.').last;
+
+                                          await imageFile.copy(
+                                              '${directory.path}/$currentUnix.$fileFormat');
+
+                                          refreshAlreadyCapturedImages();
+                                        },
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.circle,
+                                              color: Colors.white38,
+                                              size: 80,
+                                            ),
+                                            Icon(
+                                              Icons.circle,
+                                              color: Colors.white,
+                                              size: 65,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: _imageFile != null
+                                            ? () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        PreviewScreen(
+                                                      imageFile: _imageFile!,
+                                                      fileList: allFileList,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            : null,
+                                        child: Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                              color: Colors.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                              image: _imageFile != null
+                                                  ? DecorationImage(
+                                                      image: FileImage(
+                                                          _imageFile!),
+                                                      fit: BoxFit.fill,
+                                                    )
+                                                  : null),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
