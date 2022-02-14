@@ -206,12 +206,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                                   alignment: Alignment.bottomCenter,
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        'Place Holder',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
+                                      InkWell(
+                                          child: SizedBox(
+                                        // empty box to fix aligment
+                                        width: 60,
+                                        height: 60,
+                                      )),
                                       InkWell(
                                         onTap: () async {
                                           XFile? rawImage = await takePicture();
