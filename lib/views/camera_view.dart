@@ -18,7 +18,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
   bool _isCameraInitialized = false;
   final resolutionPreset = ResolutionPreset.values;
-  ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
+  ResolutionPreset currentResolutionPreset = ResolutionPreset.low;
 
   File? _imageFile;
   List<File> allFileList = [];
@@ -149,235 +149,300 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  AspectRatio(
-                    aspectRatio: 1 / controller!.value.aspectRatio,
+                  Expanded(
                     child: Stack(
+                      // fit: StackFit.expand,
                       alignment: AlignmentDirectional.topStart,
                       children: [
-                        controller!.buildPreview(),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.black87,
-                                      borderRadius:
-                                          BorderRadius.circular(10.0)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8.0, right: 8.0),
-                                    child: DropdownButton<ResolutionPreset>(
-                                      dropdownColor: Colors.black87,
-                                      underline: Container(),
-                                      value: currentResolutionPreset,
-                                      items: [
-                                        for (ResolutionPreset preset
-                                            in resolutionPreset)
-                                          DropdownMenuItem(
-                                            child: Text(
-                                              preset.toString().split('.')[1],
-                                              style: TextStyle(
-                                                  color: Colors.white),
+                        AspectRatio(
+                          aspectRatio: 1 / controller!.value.aspectRatio,
+                          child: controller!.buildPreview(),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16.0, 8.0, 16.0, 8.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.black87,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8.0, right: 8.0),
+                                            child: DropdownButton<
+                                                ResolutionPreset>(
+                                              dropdownColor: Colors.black87,
+                                              underline: Container(),
+                                              value: currentResolutionPreset,
+                                              items: [
+                                                for (ResolutionPreset preset
+                                                    in resolutionPreset)
+                                                  DropdownMenuItem(
+                                                    child: Text(
+                                                      preset
+                                                          .toString()
+                                                          .split('.')[1],
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                    value: preset,
+                                                  )
+                                              ],
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  currentResolutionPreset =
+                                                      value!;
+                                                  _isCameraInitialized = false;
+                                                });
+                                                onNewCameraSelected(
+                                                    controller!.description);
+                                              },
+                                              hint: Text('Select item'),
                                             ),
-                                            value: preset,
-                                          )
-                                      ],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          currentResolutionPreset = value!;
-                                          _isCameraInitialized = false;
-                                        });
-                                        onNewCameraSelected(
-                                            controller!.description);
-                                      },
-                                      hint: Text('Select item'),
-                                    ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                    child: SingleChildScrollView(
+                                  physics: BouncingScrollPhysics(),
+                                  child: Column(
                                     children: [
-                                      InkWell(
-                                          child: SizedBox(
-                                        // empty box to fix aligment
-                                        width: 60,
-                                        height: 60,
-                                      )),
-                                      InkWell(
-                                        onTap: () async {
-                                          XFile? rawImage = await takePicture();
-                                          File imageFile = File(rawImage!.path);
-                                          int currentUnix = DateTime.now()
-                                              .millisecondsSinceEpoch;
-                                          final directory =
-                                              await getApplicationDocumentsDirectory();
-                                          String fileFormat =
-                                              imageFile.path.split('.').last;
-
-                                          await imageFile.copy(
-                                              '${directory.path}/$currentUnix.$fileFormat');
-
-                                          refreshAlreadyCapturedImages();
-                                        },
-                                        child: Stack(
-                                          alignment: Alignment.center,
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16.0, 8.0, 16.0, 0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Icon(
-                                              Icons.circle,
-                                              color: Colors.white38,
-                                              size: 80,
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.flash_off,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.off
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                              ),
+                                              iconSize: 24,
+                                              splashRadius: 24,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.off;
+                                                });
+                                                await controller!.setFlashMode(
+                                                    FlashMode.off);
+                                              },
+                                              splashColor: Colors.white,
                                             ),
-                                            Icon(
-                                              Icons.circle,
-                                              color: Colors.white,
-                                              size: 65,
-                                            )
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.flash_auto,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.auto
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                              ),
+                                              iconSize: 24,
+                                              splashRadius: 24,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.auto;
+                                                });
+                                                await controller!.setFlashMode(
+                                                    FlashMode.auto);
+                                              },
+                                              splashColor: Colors.white,
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.flash_on,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.always
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                              ),
+                                              iconSize: 24,
+                                              splashRadius: 24,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.always;
+                                                });
+                                                await controller!.setFlashMode(
+                                                    FlashMode.always);
+                                              },
+                                              splashColor: Colors.white,
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.highlight,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.torch
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                              ),
+                                              iconSize: 24,
+                                              splashRadius: 24,
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.torch;
+                                                });
+                                                await controller!.setFlashMode(
+                                                    FlashMode.torch);
+                                              },
+                                              splashColor: Colors.white,
+                                            ),
                                           ],
                                         ),
                                       ),
-                                      InkWell(
-                                        onTap: _imageFile != null
-                                            ? () {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PreviewScreen(
-                                                      imageFile: _imageFile!,
-                                                      fileList: allFileList,
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16.0, 0, 16.0, 40.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    InkWell(
+                                                        child: SizedBox(
+                                                      // empty box to fix aligment
+                                                      width: 60,
+                                                      height: 60,
+                                                    )),
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        XFile? rawImage =
+                                                            await takePicture();
+                                                        File imageFile = File(
+                                                            rawImage!.path);
+                                                        int currentUnix = DateTime
+                                                                .now()
+                                                            .millisecondsSinceEpoch;
+                                                        final directory =
+                                                            await getApplicationDocumentsDirectory();
+                                                        String fileFormat =
+                                                            imageFile.path
+                                                                .split('.')
+                                                                .last;
+
+                                                        await imageFile.copy(
+                                                            '${directory.path}/$currentUnix.$fileFormat');
+
+                                                        refreshAlreadyCapturedImages();
+                                                      },
+                                                      child: Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.circle,
+                                                            color:
+                                                                Colors.white38,
+                                                            size: 80,
+                                                          ),
+                                                          Icon(
+                                                            Icons.circle,
+                                                            color: Colors.white,
+                                                            size: 65,
+                                                          )
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                );
-                                              }
-                                            : null,
-                                        child: Container(
-                                          width: 60,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                              image: _imageFile != null
-                                                  ? DecorationImage(
-                                                      image: FileImage(
-                                                          _imageFile!),
-                                                      fit: BoxFit.fill,
+                                                    InkWell(
+                                                      onTap: _imageFile != null
+                                                          ? () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .push(
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          PreviewScreen(
+                                                                    imageFile:
+                                                                        _imageFile!,
+                                                                    fileList:
+                                                                        allFileList,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+                                                          : null,
+                                                      child: Container(
+                                                        width: 60,
+                                                        height: 60,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                color: Colors
+                                                                    .black,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                                border:
+                                                                    Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 2,
+                                                                ),
+                                                                image: _imageFile !=
+                                                                        null
+                                                                    ? DecorationImage(
+                                                                        image: FileImage(
+                                                                            _imageFile!),
+                                                                        fit: BoxFit
+                                                                            .fill,
+                                                                      )
+                                                                    : null),
+                                                      ),
                                                     )
-                                                  : null),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       )
                                     ],
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
+                                )),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                      child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  Icons.flash_off,
-                                  color: _currentFlashMode == FlashMode.off
-                                      ? Colors.amber
-                                      : Colors.white,
-                                ),
-                                iconSize: 24,
-                                splashRadius: 24,
-                                onPressed: () async {
-                                  setState(() {
-                                    _currentFlashMode = FlashMode.off;
-                                  });
-                                  await controller!.setFlashMode(FlashMode.off);
-                                },
-                                splashColor: Colors.white,
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.flash_auto,
-                                  color: _currentFlashMode == FlashMode.auto
-                                      ? Colors.amber
-                                      : Colors.white,
-                                ),
-                                iconSize: 24,
-                                splashRadius: 24,
-                                onPressed: () async {
-                                  setState(() {
-                                    _currentFlashMode = FlashMode.auto;
-                                  });
-                                  await controller!
-                                      .setFlashMode(FlashMode.auto);
-                                },
-                                splashColor: Colors.white,
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.flash_on,
-                                  color: _currentFlashMode == FlashMode.always
-                                      ? Colors.amber
-                                      : Colors.white,
-                                ),
-                                iconSize: 24,
-                                splashRadius: 24,
-                                onPressed: () async {
-                                  setState(() {
-                                    _currentFlashMode = FlashMode.always;
-                                  });
-                                  await controller!
-                                      .setFlashMode(FlashMode.always);
-                                },
-                                splashColor: Colors.white,
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.highlight,
-                                  color: _currentFlashMode == FlashMode.torch
-                                      ? Colors.amber
-                                      : Colors.white,
-                                ),
-                                iconSize: 24,
-                                splashRadius: 24,
-                                onPressed: () async {
-                                  setState(() {
-                                    _currentFlashMode = FlashMode.torch;
-                                  });
-                                  await controller!
-                                      .setFlashMode(FlashMode.torch);
-                                },
-                                splashColor: Colors.white,
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ))
                 ],
               )
             : Container());
