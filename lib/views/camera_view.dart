@@ -163,64 +163,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      16.0, 8.0, 16.0, 8.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.topRight,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.black87,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 8.0, right: 8.0),
-                                            child: DropdownButton<
-                                                ResolutionPreset>(
-                                              dropdownColor: Colors.black87,
-                                              underline: Container(),
-                                              value: currentResolutionPreset,
-                                              items: [
-                                                for (ResolutionPreset preset
-                                                    in resolutionPreset)
-                                                  DropdownMenuItem(
-                                                    child: Text(
-                                                      preset
-                                                          .toString()
-                                                          .split('.')[1],
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                    value: preset,
-                                                  )
-                                              ],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  currentResolutionPreset =
-                                                      value!;
-                                                  _isCameraInitialized = false;
-                                                });
-                                                onNewCameraSelected(
-                                                    controller!.description);
-                                              },
-                                              hint: Text('Select item'),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
@@ -334,12 +276,45 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    InkWell(
-                                                        child: SizedBox(
-                                                      // empty box to fix aligment
-                                                      width: 60,
-                                                      height: 60,
-                                                    )),
+                                                    Container(
+                                                      child: DropdownButton<
+                                                          ResolutionPreset>(
+                                                        dropdownColor:
+                                                            Colors.black87,
+                                                        underline: Container(),
+                                                        value:
+                                                            currentResolutionPreset,
+                                                        items: [
+                                                          for (ResolutionPreset preset
+                                                              in resolutionPreset)
+                                                            DropdownMenuItem(
+                                                              child: Text(
+                                                                preset
+                                                                    .toString()
+                                                                    .split(
+                                                                        '.')[1]
+                                                                    .substring(
+                                                                        0, 3),
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                              value: preset,
+                                                            )
+                                                        ],
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            currentResolutionPreset =
+                                                                value!;
+                                                            _isCameraInitialized =
+                                                                false;
+                                                          });
+                                                          onNewCameraSelected(
+                                                              controller!
+                                                                  .description);
+                                                        },
+                                                      ),
+                                                    ),
                                                     InkWell(
                                                       onTap: () async {
                                                         XFile? rawImage =
